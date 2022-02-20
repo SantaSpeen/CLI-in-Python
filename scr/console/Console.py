@@ -2,6 +2,7 @@
 
 # Developed by Ahegao Devs
 # Written by: SantaSpeen
+# Version 1.0
 # Licence: MIT
 # (c) ahegao.ovh 2022
 
@@ -34,7 +35,7 @@ class Console:
                  prompt_in: str = ">",
                  prompt_out: str = "]:",
                  not_found: str = "Command \"%s\" not found in alias.",
-                 file: str or None = None,
+                 file: str or None = ConsoleIO,
                  debug: bool = False) -> None:
         """
             def __init__(self,
@@ -57,6 +58,8 @@ class Console:
         self.__alias = {
             "help": self.__create_help_message,
         }
+
+        self.is_run = False
 
         self.get_IO = ConsoleIO
 
@@ -99,8 +102,11 @@ class Console:
         return message
 
     def __create_message(self, text, r="\r"):
-        self.__debug("create message to output")
-        return r + self.__prompt_out + " " + text + "\n\r" + self.__prompt_in + " "
+        self.__debug(f"create message to output, is_run: {self.is_run}")
+        text += "\n"
+        if self.is_run:
+            text += "\r" + self.__prompt_in + " "
+        return r + self.__prompt_out + " " + text
 
     @property
     def alias(self) -> dict:
@@ -127,8 +133,7 @@ class Console:
         return self.__alias.copy()
 
     def write(self, s: AnyStr, r="\r"):
-        s = s.replace("\n\t", "\n" + self.__prompt_out + "   ").replace("\t", "   ")
-        ConsoleIO.write(self.__create_message(s, r))
+        self.__file.write(self.__create_message(s, r))
 
     def log(self, s: AnyStr, r='\r') -> None:
         self.write(s, r)
@@ -143,12 +148,17 @@ class Console:
                          file: str or None = None,
                          flush: bool = False,
                          loading: bool = False) -> None:
+        self.__debug(f"Used __builtins_print; is_run: {self.is_run}")
         val = list(values)
         if len(val) > 0:
             val.insert(0, "\r" + self.__prompt_out)
             if not loading:
-                val.append("\r\n" + self.__prompt_in + " ")
-            end = "" if end is None else end
+                if self.is_run:
+                    val.append("\r\n" + self.__prompt_in + " ")
+                    end = "" if end is None else end
+                else:
+                    if end is None:
+                        end = "\n"
         self.__print(*tuple(val), sep=sep, end=end, file=file, flush=flush)
 
     def logger_hook(self) -> None:
@@ -160,7 +170,7 @@ class Console:
                 msg = cls.format(record)
                 ConsoleIO.write(self.__create_message(msg))
                 cls.flush()
-            except RecursionError:  # See issue 36272
+            except RecursionError:
                 raise
             except Exception:
                 cls.handleError(record)
@@ -173,8 +183,10 @@ class Console:
         :return: None
         """
         self.__debug("used builtins_hook")
+
         builtins.Console = Console
         builtins.console = self
+
         builtins.print = self.__builtins_print
 
     def run(self) -> None:
@@ -182,6 +194,7 @@ class Console:
             def run(self) -> None:
         :return: None
         """
+        self.is_run = True
         self.run_while(True)
 
     def run_while(self, whl) -> None:

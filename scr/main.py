@@ -4,7 +4,11 @@ import os
 from console import Console, ConsoleIO
 
 # Init modules
-cli = Console()  # Console(debug=True)
+cli = Console(prompt_in=">",
+              prompt_out="]:",
+              not_found="Command \"%s\" not found in alias.",
+              file=ConsoleIO,
+              debug=False)
 logging.basicConfig(level=logging.NOTSET, format="%(asctime)s - %(name)-5s - %(levelname)-7s - %(message)s")
 
 
@@ -13,7 +17,7 @@ def cli_print():
     cli.log("cli.og")
     cli.write("cli.write")
 
-    print("\r...", end="\n\n\n")
+    print(end="\n\n\n")
 
 
 def logger_preview():
@@ -27,7 +31,7 @@ def logger_preview():
     logging.error("Error log")
     logging.info("Info log")
 
-    print("\r...", end="\n\n\n")
+    print(end="\n\n\n")
 
 
 def builtins_preview():
@@ -36,7 +40,6 @@ def builtins_preview():
     # Output below without hook
 
     print("No builtins_hook here")
-    print("No builtins_hook here, but file=cli, end=''", file=cli, end="")
 
     cli.builtins_hook()
 
@@ -51,7 +54,7 @@ def builtins_preview():
     console['[] log']
     console << "<< log"
 
-    ConsoleIO.write("\r...\n\n")  # Or console.get_IO.write("\r...\n\n")
+    ConsoleIO.write("\n\n")  # Or console.get_IO.write("\n\n")
 
 
 def cli_echo(x: str):
@@ -62,21 +65,22 @@ def cli_echo(x: str):
     return message
 
 
-def cli_error(x):
+def cli_error(x: str):
     """ Print error message """
 
     raise Exception("Test error message")
 
 
-def cli_exit():
+def cli_exit(x: str):
     """ Kill process """
-    
+
     pid = os.getpid()
     os.system(f"kill {pid}")
 
 
 def cli_mode():
-    print("type help")
+
+    ConsoleIO.write("\rtype help\n")
 
     cli.add("echo", cli_echo)
     cli.add("error", cli_error)
@@ -90,6 +94,6 @@ def cli_mode():
 
 if __name__ == '__main__':
     cli_print()
-    logger_preview()
-    builtins_preview()
-    cli_mode()
+    # logger_preview()
+    # builtins_preview()
+    # cli_mode()

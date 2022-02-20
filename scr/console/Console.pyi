@@ -31,7 +31,8 @@ class Console(object):
                  file: SupportsWrite[str] or None = Console,
                  debug: bool = False) -> None:
 
-        self.get_IO: ConsoleIO
+        self.get_IO: ConsoleIO = ConsoleIO
+        self.is_run: bool = False
 
     def __getitem__(self, item): ...
     @property
