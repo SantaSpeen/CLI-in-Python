@@ -94,6 +94,6 @@ def cli_mode():
 
 if __name__ == '__main__':
     cli_print()
-    # logger_preview()
-    # builtins_preview()
-    # cli_mode()
+    logger_preview()
+    builtins_preview()
+    cli_mode()

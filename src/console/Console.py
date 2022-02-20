@@ -221,8 +221,8 @@ class Console:
                     else:
                         self.log(self.__not_found % cmd)
             except Exception as e:
-                if e == KeyboardInterrupt:
-                    raise e
+                # if e == KeyboardInterrupt:
+                #     raise e
                 ConsoleIO.write_err("\rDuring the execution of the command, an error occurred:\n\n" +
                                     str(traceback.format_exc()) +
                                     "\nType Enter to continue.")
