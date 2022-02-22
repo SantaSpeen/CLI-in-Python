@@ -50,7 +50,7 @@ cli.write("cli.write")
 # ]: cli.write
 ```
 
-* Использование вывода с logging
+* Использование вывода с `logging`
 
 ```python
 from console import Console
@@ -73,7 +73,7 @@ logging.info("Info log")
 # ]: 2022-02-20 23:22:49,731 - root  - INFO    - Info log
 ```
 
-* Использование вывода с`print()` и `console.log`
+* Использование вывода с `print()` и `console.log`
 
 ```python
 from console import Console
@@ -101,8 +101,8 @@ console << "<< log"
 # ]: << log
 ```
 
-Если вы используете IDE, можно обновить `builtins.pyi` используя `scr/builtins_fix.pyi`. <br/>
-Скопируйте всё из `builtins_fix.pyi` и вставте в `builtins.pyi` на `131` линию, до `class type(object)`.
+Если вы используете IDE, можно обновить `builtins.pyi`, что бы она не ругалась на отсутствие `console.*` используя `scr/builtins_fix.pyi`. <br/>
+Скопируйте всё из `builtins_fix.pyi` и вставте в `builtins.pyi` на `131` линию, перед `class type(object)`.
 
 ## Ссылки
 

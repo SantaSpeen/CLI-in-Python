@@ -52,7 +52,7 @@ cli.write("cli.write")
 # ]: cli.write
 ```
 
-* With logging output usage
+* With `logging` output usage
 
 ```python
 from console import Console
@@ -75,7 +75,7 @@ logging.info("Info log")
 # ]: 2022-02-20 23:22:49,731 - root  - INFO    - Info log
 ```
 
-* with `print()` and `console.log` output usage
+* With `print()` and `console.log` output usage
 
 ```python
 from console import Console
