@@ -10,6 +10,7 @@ import builtins
 import logging
 import sys
 import traceback
+from builtins import RecursionError
 from typing import AnyStr
 
 
@@ -29,6 +30,10 @@ class ConsoleIO:
 
 
 # noinspection PyUnusedLocal, PyShadowingBuiltins, PyUnresolvedReferences
+def un():
+    pass
+
+
 class Console:
 
     def __init__(self,
@@ -41,7 +46,8 @@ class Console:
             def __init__(self,
                  prompt_in: str = ">",
                  prompt_out: str = "]:",
-                 not_found: str = "Command \"%s\" not found in alias.") -> None:
+                 not_found: str = 'Command "%s" not found in alias.'
+                 ) -> None:
         :param prompt_in:
         :param prompt_out:
         :param not_found:
@@ -56,8 +62,11 @@ class Console:
         self.__file = file
 
         self.__alias = dict()
+        self.__man = dict()
 
-        self.add("help", self.__create_help_message, True)
+        self.add("man", self.__create_man_message, True, "man [COMMAND]")
+        self.add("help", self.__create_help_message, True, "List of all available commands\n"
+                                                           "--raw : View raw")
 
         self.is_run = False
 
@@ -73,31 +82,56 @@ class Console:
 
         print(item)
 
-    @staticmethod
-    def __get_max_len(arg) -> int:
-        arg = list(arg)
+    def __get_max_len(self, arg) -> int:
         i = 0
+        arg = list(arg)
         for a in arg:
-            l = len(a)
+            l = len(str(a))
             if l > i:
                 i = l
         return i
 
+    def __create_man_message(self, argv: list) -> AnyStr:
+        x = argv[0]
+        if x in ['']:
+            return "man [COMMAND]"
+        man_message = self.__man.get(x)
+        if man_message:
+            return man_message
+        return f'man: command "{x}" not found'
+
     # noinspection PyStringFormat
-    def __create_help_message(self, x) -> AnyStr:
+    def __create_help_message(self, argv: list) -> AnyStr:
         """ Print help message and alias of console commands"""
         self.__debug("creating help message")
+        raw = False
+        if "--raw" in argv:
+            max_len_v = self.__get_max_len(self.__alias.values())
+            print()
+            raw = True
 
+        message = str()
         max_len = self.__get_max_len(self.__alias.keys())
         if max_len < 7:
             max_len = 7
 
-        message = f"%{max_len}s : Help message\n" % "Command"
+        if not raw:
+            message += f"%{max_len}s : Help message\n" % "Command"
+        else:
+            message += f"%-{max_len - len(self.__prompt_out)-1}s; %-{max_len_v}s; __doc__\n" % ("Key", "Object")
+
         for k, v in self.__alias.items():
             doc = v['f'].__doc__
-            if doc is None:
-                doc = " No help message found"
-            message += f"   %{max_len}s :%s\n" % (k, doc)
+
+            if raw:
+
+                message += f"%-{max_len}s; %-{max_len_v}s; %s\n"  % (k, v, doc)
+
+            else:
+
+                if doc is None:
+                    doc = " No help message found"
+                message += f"   %{max_len}s :%s\n" % (k, doc)
 
         return message
 
@@ -117,21 +151,23 @@ class Console:
         """
         return self.__alias.copy()
 
-    def add(self, key: str, func, echo=False) -> dict:
+    def add(self, key: str, func, argv=False, man="No have manual message") -> dict:
         """
             add(key: str, func, echo=False) -> dict
         :param key: Command name. This name added to alias of commands
         :param func: Function or lambda function to run, when called key
-        :param echo: If you need echo from command set as True
+        :param argv: If you need echo from command set as True
+        :param man: Man message
         :return: Copy of commands alias
         """
-        
+
         key = key.format(" ", "-")
 
         if not isinstance(key, str):
             raise TypeError("key must be string")
-        self.__debug(f"added user command: key={key}; func={func}; echo={echo}")
-        self.__alias.update({key: {"f": func, "e": echo}})
+        self.__debug(f"added user command: key={key}; func={func}; echo={argv}")
+        self.__alias.update({key: {"f": func, "e": argv}})
+        self.__man.update({key: f'Manual for command "{key}"\n\n' + man + "\n\n"})
         return self.__alias.copy()
 
     def write(self, s: AnyStr, r="\r"):
@@ -222,12 +258,12 @@ class Console:
                     if command_object:
                         command = command_object['f']
                         if command_object['e']:
-                            x = cmd_in[len(cmd) + 1:]
-                            output = command(x)
+                            argv = cmd_in[len(cmd) + 1:].split(" ")
+                            output = command(argv)
                         else:
                             output = command()
-                        if isinstance(output, str):
-                            self.log(output)
+                        self.log(str(output))
+
                     else:
                         self.log(self.__not_found % cmd)
             except Exception as e:

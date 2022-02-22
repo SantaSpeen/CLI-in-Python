@@ -59,10 +59,10 @@ def builtins_preview():
     ConsoleIO.write("\n\n")  # Or console.get_IO.write("\n\n")
 
 
-def cli_echo(x: str):
+def cli_echo(argv: list):
     """ Help message here """
 
-    message = "Echo message: " + x
+    message = f"argv: {argv}"
 
     return message
 
@@ -93,7 +93,7 @@ def cli_uname():
 def cli_mode():
     ConsoleIO.write("\rtype help\n")
 
-    cli.add("echo", cli_echo, echo=True)
+    cli.add("echo", cli_echo, argv=True)
     cli.add("error", cli_error)
     cli.add("exit", cli_exit)
     cli.add("uname", cli_uname)
