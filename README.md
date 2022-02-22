@@ -1,6 +1,6 @@
 # CLI in Python
 
-#### Версия для русских: [здесь](./README_RU.md)
+##### Версия для русских: [здесь](./README_RU.md)
 
 ## Command-line interface for programs on Python3
 
@@ -8,6 +8,9 @@
 
 ```python
 from console import Console
+import platform
+import getpass
+
 cli = Console(prompt_in=">", prompt_out="]:")
 
 def cli_echo(x: str):
@@ -17,7 +20,17 @@ def cli_echo(x: str):
 
     return message
 
-cli.add("help", cli_echo)  # Add commands
+def cli_uname():
+    """ Print uname information. """
+
+    uname = platform.uname()
+    user = getpass.getuser()
+
+    return f"{user}@{uname.node} -> {uname.system} {uname.release} ({uname.version})"
+
+# Add commands
+cli.add("help", cli_echo, echo=True)  # With echo
+cli.add("uname", cli_uname)  # Without echo
 
 cli.run()
 ```
@@ -89,6 +102,9 @@ console << "<< log"
 # ]: [] log
 # ]: << log
 ```
+
+If you use IDE, you mast update `builtins.pyi` with `scr/builtins_fix.pyi`. <br/>
+Copy all from `builtins_fix.pyi` and insert into `builtins.pyi` at line `131` below `class type(object)`.
 
 ## Links
 

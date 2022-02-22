@@ -6,6 +6,9 @@
 
 ```python
 from console import Console
+import platform
+import getpass
+
 cli = Console(prompt_in=">", prompt_out="]:")
 
 def cli_echo(x: str):
@@ -15,7 +18,17 @@ def cli_echo(x: str):
 
     return message
 
-cli.add("help", cli_echo)  # Add commands
+def cli_uname():
+    """ Print uname information. """
+
+    uname = platform.uname()
+    user = getpass.getuser()
+
+    return f"{user}@{uname.node} -> {uname.system} {uname.release} ({uname.version})"
+
+# Add commands
+cli.add("help", cli_echo, echo=True)  # With echo
+cli.add("uname", cli_uname)  # Without echo
 
 cli.run()
 ```
@@ -87,6 +100,9 @@ console << "<< log"
 # ]: [] log
 # ]: << log
 ```
+
+Если вы используете IDE, можно обновить `builtins.pyi` используя `scr/builtins_fix.pyi`. <br/>
+Скопируйте всё из `builtins_fix.pyi` и вставте в `builtins.pyi` на `131` линию, до `class type(object)`.
 
 ## Ссылки
 

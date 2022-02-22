@@ -1,5 +1,7 @@
+import getpass
 import logging
 import os
+import platform
 
 from console import Console, ConsoleIO
 
@@ -65,26 +67,36 @@ def cli_echo(x: str):
     return message
 
 
-def cli_error(x: str):
+def cli_error():
     """ Print error message """
 
     raise Exception("Test error message")
 
 
-def cli_exit(x: str):
+def cli_exit():
     """ Kill process """
 
     pid = os.getpid()
+    print(f"\r$ kill {pid}")
     os.system(f"kill {pid}")
 
 
-def cli_mode():
+def cli_uname():
+    """ Print uname information """
 
+    uname = platform.uname()
+    user = getpass.getuser()
+
+    return f"{user}@{uname.node} -> {uname.system} {uname.release} ({uname.version})"
+
+
+def cli_mode():
     ConsoleIO.write("\rtype help\n")
 
-    cli.add("echo", cli_echo)
+    cli.add("echo", cli_echo, echo=True)
     cli.add("error", cli_error)
     cli.add("exit", cli_exit)
+    cli.add("uname", cli_uname)
 
     cli.run()
 

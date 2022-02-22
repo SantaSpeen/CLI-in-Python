@@ -2,7 +2,7 @@
 
 # Developed by Ahegao Devs
 # Written by: SantaSpeen
-# Version 1.0
+# Version 1.1
 # Licence: MIT
 # (c) ahegao.ovh 2022
 
@@ -55,9 +55,9 @@ class Console:
 
         self.__file = file
 
-        self.__alias = {
-            "help": self.__create_help_message,
-        }
+        self.__alias = dict()
+
+        self.add("help", self.__create_help_message, True)
 
         self.is_run = False
 
@@ -94,7 +94,7 @@ class Console:
 
         message = f"%{max_len}s : Help message\n" % "Command"
         for k, v in self.__alias.items():
-            doc = v.__doc__
+            doc = v['f'].__doc__
             if doc is None:
                 doc = " No help message found"
             message += f"   %{max_len}s :%s\n" % (k, doc)
@@ -111,25 +111,27 @@ class Console:
     @property
     def alias(self) -> dict:
         """
+            @property
             def alias(self) -> dict:
-        :return: dict of alias
+        :return: Copy of commands alias
         """
         return self.__alias.copy()
 
-    def add(self, key: str, func) -> dict:
+    def add(self, key: str, func, echo=False) -> dict:
         """
-            def add(self, key: str, func) -> dict:
-        :param key:
-        :param func:
-        :return:
+            add(key: str, func, echo=False) -> dict
+        :param key: Command name. This name added to alias of commands
+        :param func: Function or lambda function to run, when called key
+        :param echo: If you need echo from command set as True
+        :return: Copy of commands alias
         """
         
         key = key.format(" ", "-")
 
         if not isinstance(key, str):
             raise TypeError("key must be string")
-        self.__debug(f"added user command: key={key}; func={func}")
-        self.__alias.update({key: func})
+        self.__debug(f"added user command: key={key}; func={func}; echo={echo}")
+        self.__alias.update({key: {"f": func, "e": echo}})
         return self.__alias.copy()
 
     def write(self, s: AnyStr, r="\r"):
@@ -162,6 +164,10 @@ class Console:
         self.__print(*tuple(val), sep=sep, end=end, file=file, flush=flush)
 
     def logger_hook(self) -> None:
+        """
+            def logger_hook(self) -> None:
+        :return: None
+        """
 
         self.__debug("used logger_hook")
 
@@ -212,10 +218,14 @@ class Console:
                 if cmd == "":
                     pass
                 else:
-                    command = self.__alias.get(cmd)
-                    if command:
-                        x = cmd_in[len(cmd) + 1:]
-                        output = command(x)
+                    command_object = self.__alias.get(cmd)
+                    if command_object:
+                        command = command_object['f']
+                        if command_object['e']:
+                            x = cmd_in[len(cmd) + 1:]
+                            output = command(x)
+                        else:
+                            output = command()
                         if isinstance(output, str):
                             self.log(output)
                     else:
