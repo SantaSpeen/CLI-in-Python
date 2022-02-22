@@ -13,10 +13,10 @@ import getpass
 
 cli = Console(prompt_in=">", prompt_out="]:")
 
-def cli_echo(x: str):
+def cli_echo(argv: list):
     """ Help message here """
 
-    message = "Echo message: " + x
+    message = f"argv: {argv}"
 
     return message
 
