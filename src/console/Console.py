@@ -30,10 +30,6 @@ class ConsoleIO:
 
 
 # noinspection PyUnusedLocal, PyShadowingBuiltins, PyUnresolvedReferences
-def un():
-    pass
-
-
 class Console:
 
     def __init__(self,
