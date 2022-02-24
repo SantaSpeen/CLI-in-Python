@@ -113,3 +113,4 @@ Copy all from `builtins_fix.pyi` and insert into `builtins.pyi` at line `131` be
 Used in: 
 
 * [Python-CLI-Game-Engine](https://github.com/SantaSpeen/Python-CLI-Game-Engine)
+* [CLI-Remote-in-Python](https://github.com/SantaSpeen/CLI-Remote-in-Python)

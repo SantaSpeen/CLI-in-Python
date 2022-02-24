@@ -108,6 +108,7 @@ console << "<< log"
 
 * [Мой Telegram](https://t.me/SantaSpeen "SantaSpeen"): https://t.me/SantaSpeen
 
-Используемые в поектах: 
+Используемые в проектах: 
 
 * [Python-CLI-Game-Engine](https://github.com/SantaSpeen/Python-CLI-Game-Engine)
+* [CLI-Remote-in-Python](https://github.com/SantaSpeen/CLI-Remote-in-Python)
