@@ -1,4 +1,8 @@
 # CLI in Python
+<p align="center">
+    <img src="https://img.shields.io/github/license/SantaSpeen/CLI-in-Python?style=for-the-badge" alt="license" title="license: MIT">
+    <img src="https://img.shields.io/github/issues/SantaSpeen/CLI-in-Python?style=for-the-badge" alt="issues">
+</p>
 
 ##### Версия для русских: [здесь](./README_RU.md)
 
