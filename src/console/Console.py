@@ -10,8 +10,14 @@ import builtins
 import logging
 import sys
 import traceback
+import asyncio
 from builtins import RecursionError
 from typing import AnyStr
+
+try:
+    from aioconsole import ainput
+except ImportError:
+    ainput = None
 
 
 class ConsoleIO:
@@ -66,6 +72,8 @@ class Console:
                                                            "--raw : View raw")
 
         self.is_run = False
+
+        self.async_loop = async_loop
 
         self.get_IO = ConsoleIO
 
@@ -126,7 +134,6 @@ class Console:
                 message += f"%-{max_len}s; %-{max_len_v}s; %s\n" % (k, v, doc)
 
             else:
-
                 if doc is None:
                     doc = " No help message found"
                 message += f"   %{max_len}s :%s\n" % (k, doc)
@@ -229,6 +236,29 @@ class Console:
 
         builtins.print = self.__builtins_print
 
+    def _cli_logic(self, cmd_in):
+        try:
+            cmd = cmd_in.split(" ")[0]
+            if cmd == "":
+                pass
+            else:
+                command_object = self.__alias.get(cmd)
+                if command_object:
+                    command = command_object['f']
+                    if command_object['e']:
+                        argv = cmd_in[len(cmd) + 1:].split(" ")
+                        output = command(argv)
+                    else:
+                        output = command()
+                    self.log(str(output))
+
+                else:
+                    self.log(self.__not_found % cmd)
+        except Exception as e:
+            ConsoleIO.write_err("\rDuring the execution of the command, an error occurred:\n\n" +
+                                str(traceback.format_exc()) +
+                                "\nType Enter to continue.")
+
     def run(self) -> None:
         """
             def run(self) -> None:
@@ -245,22 +275,8 @@ class Console:
         """
         self.__debug(f"run while {whl}")
         while whl:
-            try:
-                ConsoleIO.write("\r" + self.__prompt_in + " ")
-                cmd_in = ConsoleIO.read()
-                cmd = cmd_in.split(" ")[0]
-                if cmd == "":
-                    pass
-                else:
-                    command_object = self.__alias.get(cmd)
-                    if command_object:
-                        command = command_object['f']
-                        if command_object['e']:
-                            argv = cmd_in[len(cmd) + 1:].split(" ")
-                            output = command(argv)
-                        else:
-                            output = command()
-                        self.log(str(output))
+            ConsoleIO.write("\r" + self.__prompt_in + " ")
+            self._cli_logic(ConsoleIO.read())
 
     async def async_run(self) -> None:
         """
