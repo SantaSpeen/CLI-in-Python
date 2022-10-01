@@ -2,7 +2,7 @@
 
 # Developed by Ahegao Devs
 # Written by: SantaSpeen
-# Version 2.0
+# Version 2.1
 # Licence: MIT
 # (c) ahegao.su 2022
 
@@ -215,7 +215,10 @@ class Console:
         def emit(cls, record):
             try:
                 msg = cls.format(record)
-                ConsoleIO.write(self.__create_message(msg))
+                if cls.stream.name == "<stderr>":
+                    ConsoleIO.write(self.__create_message(msg))
+                else:
+                    cls.stream.write(msg + cls.terminator)
                 cls.flush()
             except RecursionError:
                 raise
