@@ -2,9 +2,9 @@
 
 # Developed by Ahegao Devs
 # Written by: SantaSpeen
-# Version 1.1
+# Version 2.0
 # Licence: MIT
-# (c) ahegao.ovh 2022
+# (c) ahegao.su 2022
 
 import builtins
 import logging
@@ -33,11 +33,12 @@ class ConsoleIO:
 class Console:
 
     def __init__(self,
-                 prompt_in: str = ">",
-                 prompt_out: str = "]:",
-                 not_found: str = "Command \"%s\" not found in alias.",
-                 file: str or None = ConsoleIO,
-                 debug: bool = False) -> None:
+                 prompt_in=">",
+                 prompt_out="]:",
+                 not_found="Command \"%s\" not found in alias.",
+                 file=ConsoleIO,
+                 debug=False,
+                 async_loop=None) -> None:
         """
             def __init__(self,
                  prompt_in: str = ">",
@@ -78,13 +79,14 @@ class Console:
 
         print(item)
 
-    def __get_max_len(self, arg) -> int:
+    @staticmethod
+    def __get_max_len(arg) -> int:
         i = 0
         arg = list(arg)
         for a in arg:
-            l = len(str(a))
-            if l > i:
-                i = l
+            ln = len(str(a))
+            if ln > i:
+                i = ln
         return i
 
     def __create_man_message(self, argv: list) -> AnyStr:
@@ -101,6 +103,7 @@ class Console:
         """ Print help message and alias of console commands"""
         self.__debug("creating help message")
         raw = False
+        max_len_v = 0
         if "--raw" in argv:
             max_len_v = self.__get_max_len(self.__alias.values())
             print()
@@ -114,14 +117,13 @@ class Console:
         if not raw:
             message += f"%{max_len}s : Help message\n" % "Command"
         else:
-            message += f"%-{max_len - len(self.__prompt_out)-1}s; %-{max_len_v}s; __doc__\n" % ("Key", "Object")
+            message += f"%-{max_len - len(self.__prompt_out) - 1}s; %-{max_len_v}s; __doc__\n" % ("Key", "Object")
 
         for k, v in self.__alias.items():
             doc = v['f'].__doc__
 
             if raw:
-
-                message += f"%-{max_len}s; %-{max_len_v}s; %s\n"  % (k, v, doc)
+                message += f"%-{max_len}s; %-{max_len_v}s; %s\n" % (k, v, doc)
 
             else:
 
@@ -210,7 +212,7 @@ class Console:
                 cls.flush()
             except RecursionError:
                 raise
-            except Exception:
+            except Exception as e:
                 cls.handleError(record)
 
         logging.StreamHandler.emit = emit
@@ -260,9 +262,28 @@ class Console:
                             output = command()
                         self.log(str(output))
 
-                    else:
-                        self.log(self.__not_found % cmd)
-            except Exception as e:
-                ConsoleIO.write_err("\rDuring the execution of the command, an error occurred:\n\n" +
-                                    str(traceback.format_exc()) +
-                                    "\nType Enter to continue.")
+    async def async_run(self) -> None:
+        """
+            def async_run(self) -> None:
+        :return: None
+        """
+        self.is_run = True
+        await self.async_run_while(True)
+
+    async def async_run_while(self, whl) -> None:
+        """
+            async def async_run_while(self, whl) -> None:
+        :param whl: run while what?
+        :return: None
+        """
+        if ainput is None:
+            print("Install aioconsole for async! pip install aioconsole")
+            exit(1)
+        if self.async_loop is None:
+            self.async_loop = asyncio.get_event_loop()
+        self.__debug(f"async run while {whl}")
+        reader = asyncio.StreamReader()
+        while whl:
+            ConsoleIO.write("\r" + self.__prompt_in + " ")
+            res = await ainput()
+            self._cli_logic(res)
